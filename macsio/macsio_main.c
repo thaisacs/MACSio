@@ -85,6 +85,13 @@ int MACSIO_MAIN_Comm = 0;
 int MACSIO_MAIN_Size = 1;
 int MACSIO_MAIN_Rank = 0;
 
+extern "C" {
+  void init_timestep_();
+  void begin_timestep_();
+  void end_timestep_();
+  void exit_timestep_();
+}
+
 static void handle_help_request_and_exit(int argi, int argc, char **argv)
 {
     int rank = 0, i, n, *ids=0;;
@@ -498,6 +505,7 @@ main_write(int argi, int argc, char **argv, json_object *main_obj)
     t = 0;
 ////#warning THIS LOOP CURRENTLY JUST DOES A DUMP AFTER EVERY COMPUTE UP TO THE TOTAL NUMBER OF DUMPS. 
     while (t < maxT){
+        begin_timestep_();
 
         if (doWork){
             MACSIO_WORK_DoComputeWork(&t, dt, work_intensity);
@@ -580,6 +588,7 @@ main_write(int argi, int argc, char **argv, json_object *main_obj)
 
         /* Increase the timestep if we aren't using the work routine to do so */
         if (!doWork) t++;
+        end_timestep_();
     } /* end of timetep loop */
 
     dump_loop_end = MT_Time();
@@ -628,6 +637,7 @@ main_read(int argi, int argc, char **argv, json_object *main_obj)
 
     for (loadNum = 0; loadNum < json_object_path_get_int(main_obj, "clargs/num_loads"); loadNum++)
     {
+        begin_timestep_();
         json_object *data_read_obj;
         MACSIO_TIMING_TimerId_t heavy_load_tid;
 
@@ -651,6 +661,7 @@ main_read(int argi, int argc, char **argv, json_object *main_obj)
         /* Validate the data */
         if (JsonGetBool(main_obj, "clargs/validate_read"))
             MACSIO_DATA_ValidateDataRead(data_read_obj);
+        end_timestep_();
     }
 
     /* Just here for debugging for the moment */
@@ -708,6 +719,8 @@ main(int argc, char *argv[])
     int i, argi, exercise_scr = 0;
     double currtime;
     unsigned ucurrtim;
+
+    init_timestep_();
 
     /* quick pre-scan for scr cl flag */
     for (i = 0; i < argc && !exercise_scr; i++)
@@ -800,6 +813,7 @@ main(int argc, char *argv[])
     MACSIO_LOG_LogFinalize(MACSIO_LOG_MainLog);
     MACSIO_LOG_LogFinalize(MACSIO_LOG_StdErr);
 
+    exit_timestep_();
 #ifdef HAVE_SCR
     if (exercise_scr)
         SCR_Finalize();

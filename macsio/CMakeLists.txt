@@ -22,7 +22,7 @@ SET(mio_srcs
 SET_SOURCE_FILES_PROPERTIES(${mio_srcs} PROPERTIES LANGUAGE CXX)
 SET_SOURCE_FILES_PROPERTIES(${PLUGIN_SRCS} PROPERTIES LANGUAGE CXX)
 
-ADD_EXECUTABLE(macsio ${mio_srcs} ${PLUGIN_SRCS})
+ADD_EXECUTABLE(macsio ${mio_srcs} ${PLUGIN_SRCS} ${CMAKE_CURRENT_SOURCE_DIR}/../../kernel_stats/kernel_stats.o)
 ADD_EXECUTABLE(tstlog tstlog.c macsio_log.c)
 ADD_EXECUTABLE(tsttiming tsttiming.c macsio_timing.c macsio_log.c macsio_utils.c)
 ADD_EXECUTABLE(tstprng tstprng.c macsio_data.c macsio_utils.c)
