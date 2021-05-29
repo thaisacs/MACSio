@@ -89,6 +89,7 @@ extern "C" {
   void init_timestep_();
   void begin_timestep_();
   void end_timestep_();
+  void after_timestep_();
   void exit_timestep_();
 }
 
@@ -663,6 +664,7 @@ main_read(int argi, int argc, char **argv, json_object *main_obj)
             MACSIO_DATA_ValidateDataRead(data_read_obj);
         end_timestep_();
     }
+    after_timestep_();
 
     /* Just here for debugging for the moment */
     if (MACSIO_LOG_DebugLevel >= 3)
